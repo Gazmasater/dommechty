@@ -26,37 +26,27 @@ func main() {
 	updates := botAPI.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message != nil && update.Message.Text == "/start" {
-			// Шапка
-			headerPhoto := tgbotapi.NewPhoto(update.Message.Chat.ID, tgbotapi.FileURL("https://gazmasater.github.io/dommechty/header.jpg"))
-			headerPhoto.Caption = "Добро пожаловать в каталог домов"
-			if _, err := botAPI.Send(headerPhoto); err != nil {
-				log.Println("Ошибка отправки шапки:", err)
-			}
+		if update.Message == nil || update.Message.Text != "/start" {
+			continue
+		}
 
-			// Простая ссылка вместо WebApp-кнопки
-			webAppLink := tgbotapi.NewMessage(update.Message.Chat.ID, "🌐 Витрина домов: https://gazmasater.github.io/dommechty/")
-			if _, err := botAPI.Send(webAppLink); err != nil {
-				log.Println("Ошибка отправки ссылки:", err)
-			}
+		// 1. Шапка (фото + подпись)
+		header := tgbotapi.NewPhoto(update.Message.Chat.ID, tgbotapi.FileURL("https://gazmasater.github.io/dommechty/header.jpg"))
+		header.Caption = "🏡 Добро пожаловать в каталог домов"
+		if _, err := botAPI.Send(header); err != nil {
+			log.Println("Ошибка отправки шапки:", err)
+		}
 
-			// Список домов
-			houses := []struct {
-				Name, Description, PhotoURL string
-			}{
-				{"🏡 Дом 120 м²", "2 этажа, участок 6 соток", "https://terem-dom.ru/d/cimg6172.jpg"},
-				{"🏠 Дом 95 м²", "Компактный и тёплый", "https://terem-dom.ru/d/cimg6177.jpg"},
-				{"🏘 Дом с террасой", "С видом на реку", "https://terem-dom.ru/d/cimg6169.jpg"},
-				{"🏕 Коттедж", "Для семьи и отдыха", "https://terem-dom.ru/d/cimg6170.jpg"},
-			}
+		// 2. Кнопка для перехода на Web App
+		button := tgbotapi.NewMessage(update.Message.Chat.ID, "Нажмите кнопку ниже, чтобы открыть витрину:")
+		button.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonURL("🌐 Открыть витрину", "https://gazmasater.github.io/dommechty/"),
+			),
+		)
 
-			for _, h := range houses {
-				msg := tgbotapi.NewPhoto(update.Message.Chat.ID, tgbotapi.FileURL(h.PhotoURL))
-				msg.Caption = h.Name + "\n" + h.Description
-				if _, err := botAPI.Send(msg); err != nil {
-					log.Println("Ошибка отправки дома:", err)
-				}
-			}
+		if _, err := botAPI.Send(button); err != nil {
+			log.Println("Ошибка отправки кнопки:", err)
 		}
 	}
 }
