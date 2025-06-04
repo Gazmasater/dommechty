@@ -31,7 +31,7 @@ func main() {
 		}
 
 		// 1. Шапка (фото + подпись)
-		header := tgbotapi.NewPhoto(update.Message.Chat.ID, tgbotapi.FileURL("https://gazmasater.github.io/dommechty/header.jpg"))
+		header := tgbotapi.NewPhoto(update.Message.Chat.ID, tgbotapi.FileURL("https://ibb.co/dsDWgMMv"))
 		header.Caption = "🏡 Добро пожаловать в каталог домов"
 		if _, err := botAPI.Send(header); err != nil {
 			log.Println("Ошибка отправки шапки:", err)
